@@ -1,0 +1,25 @@
+{
+  "name": "ts-tanks",
+  "version": "1.0.0",
+  "description": "TypeScript and PIXI tank game",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gfpeltier/ts-tanks.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "lint": "gts check",
+    "dev": "webpack --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Grant Peltier",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/pixi.js": "^5.0.0",
+    "gts": "^1.1.2",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}
