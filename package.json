@@ -15,8 +15,10 @@
   "author": "Grant Peltier",
   "license": "MIT",
   "devDependencies": {
+    "@types/mathjs": "^6.0.2",
     "@types/pixi.js": "^5.0.0",
     "gts": "^1.1.2",
+    "mathjs": "^6.3.0",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4",
     "webpack": "^4.41.5",

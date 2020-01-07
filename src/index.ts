@@ -2,6 +2,7 @@
 import * as PIXI from 'pixi.js'
 import { keyboard, Key } from './controls'
 import { TankColor, loadAssets, tank } from './sprites'
+import { generateTerrain } from './terrain'
 
 const app = new PIXI.Application({
     width: 800, 
@@ -15,11 +16,12 @@ let sprite:any;
 
 function setup():void{
     
-    sprite = tank(TankColor.Blue);
-    console.log(sprite);
+    sprite = tank(TankColor.Red);
+    let terrain = generateTerrain(app.renderer);
     sprite.vrot = 0;
     sprite.vfwd = 0;
     app.stage.addChild(sprite);
+    app.stage.addChild(terrain);
     app.ticker.add(delta => gameLoop(delta));
 
     let left:Key = keyboard("ArrowLeft"),
@@ -89,5 +91,7 @@ function play(delta:any):void{
     sprite.y = Math.max(0, Math.min(app.renderer.height, (sprite.y + dy))); 
     sprite.rotation = (sprite.rotation + sprite.vrot) % (2 * Math.PI);
 }
+
+app.renderer.backgroundColor = 0x66ccff;
 
 document.body.appendChild(app.view);

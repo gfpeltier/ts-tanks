@@ -10,7 +10,10 @@ export enum TankColor {
 
 const loader = new PIXI.Loader();
 
-export function loadAssets(setup:(loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) => void):void {
+export function loadAssets(setup: (
+        loader: PIXI.Loader, resources: 
+        Partial<Record<string, PIXI.LoaderResource>>
+    ) => void): void {
     loader.add("img/tank_sprites.json").load(setup)
 }
 
