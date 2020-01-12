@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js'
 import { CSpline } from './cspline'
+import { QuadTree, Rectangle } from './quadtree'
 
 
 export function knotPoints(renderer: PIXI.Renderer, numPts: number, variance: number): number[][] {
@@ -26,5 +27,8 @@ export function generateTerrain(renderer: PIXI.Renderer): PIXI.Container{
         tpath.lineTo(i, Math.round(spline.yval(i)));
     }
     terrain.addChild(tpath);
+
+    const qtree = new QuadTree(new Rectangle(0, 0, renderer.width, renderer.height));
+    qtree.initialize(spline, terrain);
     return terrain;
 }

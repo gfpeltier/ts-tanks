@@ -77,3 +77,8 @@ export function tank(color:TankColor):PIXI.Container {
     tank.pivot.y = 35;
     return tank;
 }
+
+export function grass(): PIXI.Sprite {
+    const sprites = loader.resources["img/tank_sprites.json"].textures;
+    return new PIXI.Sprite(sprites['grass.png']);
+}
