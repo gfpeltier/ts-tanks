@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "gts check",
-    "dev": "webpack --watch",
+    "dev": "webpack-serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Grant Peltier",
@@ -18,11 +18,12 @@
     "@types/mathjs": "^6.0.2",
     "@types/pixi.js": "^5.0.0",
     "gts": "^1.1.2",
-    "pixi.js": "^5.1.3",
     "mathjs": "^6.3.0",
+    "pixi.js": "^5.1.3",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4",
     "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "webpack-serve": "^3.2.0"
   }
 }

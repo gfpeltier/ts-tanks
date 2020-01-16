@@ -80,5 +80,13 @@ export function tank(color:TankColor):PIXI.Container {
 
 export function grass(): PIXI.Sprite {
     const sprites = loader.resources["img/tank_sprites.json"].textures;
-    return new PIXI.Sprite(sprites['grass.png']);
+    let g = new PIXI.Sprite(sprites['grass.png']);
+    // g.interactive = true;
+    // g.on('mouseover', function(data:any){
+    //     this.alpha = 1;
+    // });
+    // g.on('mouseout', function(data:any){
+    //     this.alpha = 0.5;
+    // });
+    return g;
 }

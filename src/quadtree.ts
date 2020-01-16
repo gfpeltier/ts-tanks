@@ -23,7 +23,7 @@ export class Rectangle {
         sprite.height = this.h;
     }
 
-    toString(){
+    toString(): string{
         return "[" + this.x + ", " + this.y + ", " + this.w + ", " + this.h + "]";
     }
 }
@@ -36,8 +36,8 @@ export class QuadTree {
     sw: QuadTree;
     se: QuadTree;
 
-    MIN_WIDTH = 1;
-    MIN_HEIGHT = 1;
+    static readonly MIN_WIDTH = 1;
+    static readonly MIN_HEIGHT = 1;
 
     constructor(boundary: Rectangle) {
         this.boundary = boundary;
@@ -55,20 +55,20 @@ export class QuadTree {
         let neRect = new Rectangle(
             this.boundary.x + Math.floor(this.boundary.w / 2),
             this.boundary.y, 
-            Math.floor(this.boundary.w / 2),
+            Math.ceil(this.boundary.w / 2),
             Math.floor(this.boundary.h / 2)
         );
         let swRect = new Rectangle(
             this.boundary.x, 
             this.boundary.y + Math.floor(this.boundary.h / 2), 
             Math.floor(this.boundary.w / 2),
-            Math.floor(this.boundary.h / 2)
+            Math.ceil(this.boundary.h / 2)
         );
         let seRect = new Rectangle(
             this.boundary.x + Math.floor(this.boundary.w / 2), 
             this.boundary.y + Math.floor(this.boundary.h / 2), 
-            Math.floor(this.boundary.w / 2),
-            Math.floor(this.boundary.h / 2)
+            Math.ceil(this.boundary.w / 2),
+            Math.ceil(this.boundary.h / 2)
         );
         this.nw = new QuadTree(nwRect);
         this.ne = new QuadTree(neRect);
@@ -77,7 +77,7 @@ export class QuadTree {
     }
 
     isHomogeneous(cspline: CSpline): boolean {
-        if(this.boundary.w === this.MIN_WIDTH && this.boundary.h === this.MIN_HEIGHT){
+        if(this.boundary.w === QuadTree.MIN_WIDTH || this.boundary.h === QuadTree.MIN_HEIGHT){
             return true;
         }
         for(let i = this.boundary.x; i < (this.boundary.x + this.boundary.w); i++){
@@ -103,6 +103,9 @@ export class QuadTree {
         return bounds;
     }
 
+    // TODO: Range query: https://medium.com/@waleoyediran/spatial-indexing-with-quadtrees-b998ae49336
+    // TODO: Collision detection: http://www.jeffreythompson.org/collision-detection/circle-rect.php
+
     initialize(cspline: CSpline, gcontain: PIXI.Container){
         if(!this.isHomogeneous(cspline)){
             this.subdivide();
@@ -111,13 +114,12 @@ export class QuadTree {
             this.sw.initialize(cspline, gcontain);
             this.se.initialize(cspline, gcontain);
         }
-        if(this.isHomogeneous(cspline) 
-            && this.boundary.y >= cspline.yval(this.boundary.x)){
+        if(this.isHomogeneous(cspline) && this.boundary.y >= cspline.yval(this.boundary.x)){
             this.sprite = grass();
             this.boundary.matchBounds(this.sprite);
             gcontain.addChild(this.sprite);
         }
-        gcontain.addChild(this.drawBounds());
+        //gcontain.addChild(this.drawBounds());
     }
 
     isLeaf(): boolean {
