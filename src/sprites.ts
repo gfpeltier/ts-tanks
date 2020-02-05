@@ -1,12 +1,5 @@
 import * as PIXI from 'pixi.js'
-
-export enum TankColor {
-    Black,
-    Blue,
-    Beige,
-    Green,
-    Red
-}
+import { TankColor } from './models/tank'
 
 const loader = new PIXI.Loader();
 
@@ -14,25 +7,25 @@ export function loadAssets(setup: (
         loader: PIXI.Loader, resources: 
         Partial<Record<string, PIXI.LoaderResource>>
     ) => void): void {
-    loader.add("img/tank_sprites.json").load(setup)
+    loader.add("img/spritesheet.json").load(setup)
 }
 
 function tankPng(color:TankColor):string {
     switch(color) {
         case TankColor.Black: {
-            return "tankBlack.png";
+            return "tank_black.png";
         }
         case TankColor.Blue: {
-            return "tankBlue.png";
+            return "tank_blue.png";
         }
-        case TankColor.Beige: {
-            return "tankBeige.png";
+        case TankColor.Yellow: {
+            return "tank_yellow.png";
         }
         case TankColor.Green: {
-            return "tankGreen.png";
+            return "tank_green.png";
         }
         case TankColor.Red: {
-            return "tankRed.png";
+            return "tank_red.png";
         }
         default: {
             throw new Error('Invalid tank color')
@@ -40,53 +33,38 @@ function tankPng(color:TankColor):string {
     }
 }
 
-function tankBarrelPng(color:TankColor):string {
-    switch(color) {
-        case TankColor.Black: {
-            return "barrelBlack.png";
-        }
-        case TankColor.Blue: {
-            return "barrelBlue.png";
-        }
-        case TankColor.Beige: {
-            return "barrelBeige.png";
-        }
-        case TankColor.Green: {
-            return "barrelGreen.png";
-        }
-        case TankColor.Red: {
-            return "barrelRed.png";
-        }
-        default: {
-            throw new Error('Invalid tank color')
-        }
-    }
+export function tankBody(color: TankColor):PIXI.Sprite {
+    const sprites = loader.resources["img/spritesheet.json"].textures;
+    return new PIXI.Sprite(sprites[tankPng(color)]);
+}
+
+export function tankBarrel():PIXI.Sprite {
+    const sprites = loader.resources["img/spritesheet.json"].textures;
+    return new PIXI.Sprite(sprites["tank_barrel.png"]);
 }
 
 export function tank(color:TankColor):PIXI.Container {
-    const sprites = loader.resources["img/tank_sprites.json"].textures;
+    const sprites = loader.resources["img/spritesheet.json"].textures;
     const tank = new PIXI.Container();
     const tbody = new PIXI.Sprite(sprites[tankPng(color)]);
-    const tbarrel = new PIXI.Sprite(sprites[tankBarrelPng(color)]);
-    tbarrel.x = 29;
+    const tbarrel = new PIXI.Sprite(sprites["tank_barrel.png"]);
+    tbarrel.x = 10;
+    tbarrel.width = 12;
+    tbarrel.height = 4;
+    tbarrel.rotation = (Math.PI / 2);
     tbody.y = 12;
+    tbody.width = 16;
+    tbody.height = 8;
     tank.addChild(tbody);
     tank.addChild(tbarrel);
     tank.rotation = 0;
-    tank.pivot.x = 37;
-    tank.pivot.y = 35;
+    tank.pivot.x = 8;
+    tank.pivot.y = 4;
     return tank;
 }
 
 export function grass(): PIXI.Sprite {
-    const sprites = loader.resources["img/tank_sprites.json"].textures;
+    const sprites = loader.resources["img/spritesheet.json"].textures;
     let g = new PIXI.Sprite(sprites['grass.png']);
-    // g.interactive = true;
-    // g.on('mouseover', function(data:any){
-    //     this.alpha = 1;
-    // });
-    // g.on('mouseout', function(data:any){
-    //     this.alpha = 0.5;
-    // });
     return g;
 }
