@@ -1,8 +1,9 @@
 ///<reference types="pixi.js"/>
 import * as PIXI from 'pixi.js'
 import { keyboard, Key } from './controls'
-import { TankColor, loadAssets, tank } from './sprites'
-import { generateTerrain } from './terrain'
+import { loadAssets } from './sprites'
+import { TankColor, Tank } from './models/tank'
+import { Terrain } from './models/terrain'
 
 const app = new PIXI.Application({
     width: 800, 
@@ -12,70 +13,70 @@ const app = new PIXI.Application({
 
 loadAssets(setup);
 
-let sprite:any;
+let tank:Tank;
 
 function setup():void{
     
-    sprite = tank(TankColor.Red);
-    let terrain = generateTerrain(app.renderer);
-    sprite.vrot = 0;
-    sprite.vfwd = 0;
-    app.stage.addChild(sprite);
-    app.stage.addChild(terrain);
+    tank = new Tank(TankColor.Red);
+    let terrain = new Terrain(app.renderer.width, app.renderer.height);
+    terrain.mountTank(tank, 100);
+    app.stage.addChild(tank.tank);
+    app.stage.addChild(terrain.tsprites);
     app.ticker.add(delta => gameLoop(delta));
 
-    let left:Key = keyboard("ArrowLeft"),
-        right:Key = keyboard("ArrowRight"),
-        up:Key = keyboard("ArrowUp"),
-        down:Key = keyboard("ArrowDown");
+    let left:Key = keyboard("a"),
+        right:Key = keyboard("d"),
+        up:Key = keyboard("w"),
+        down:Key = keyboard("s");
 
     // Left
     left.press = () => {
-        sprite.vrot = -0.1;
-        sprite.vfwd = 0;
+        tank.vrot = -0.1;
+        tank.vfwd = 0;
     };
 
     left.release = () => {
-       if (!right.isDown && sprite.vfwd === 0) {
-            sprite.vrot = 0;
+       if (!right.isDown && tank.vfwd === 0) {
+            tank.vrot = 0;
        }
     };
         
     //Up
     up.press = () => {
-        sprite.vfwd = 5;
-        sprite.vrot = 0;
+        tank.vfwd = 5;
+        tank.vrot = 0;
     };
     
     up.release = () => {
-        if (!down.isDown && sprite.vrot === 0) {
-            sprite.vfwd = 0;
+        if (!down.isDown && tank.vrot === 0) {
+            tank.vfwd = 0;
         }
     };
         
     //Right
     right.press = () => {
-        sprite.vrot = 0.1;
-        sprite.vfwd = 0;
+        tank.vrot = 0.1;
+        tank.vfwd = 0;
     };
 
     right.release = () => {
-        if (!left.isDown && sprite.vfwd === 0) {
-            sprite.vrot = 0;
+        if (!left.isDown && tank.vfwd === 0) {
+            tank.vrot = 0;
         }
     };
 
     //Down
     down.press = () => {
-        sprite.vfwd = -5;
-        sprite.vrot = 0;
+        tank.vfwd = -5;
+        tank.vrot = 0;
     };
     
     down.release = () => {
-        if (!up.isDown && sprite.vrot === 0) {
-            sprite.vfwd = 0;
+        if (!up.isDown && tank.vrot === 0) {
+            tank.vfwd = 0;
         }
     };
+    console.log(tank);
 }
 
 let state = play;
@@ -85,11 +86,11 @@ function gameLoop(delta:any):void{
 }
 
 function play(delta:any):void{
-    let dx = sprite.vfwd * Math.cos(sprite.rotation - (Math.PI / 2));
-    let dy = sprite.vfwd * Math.sin(sprite.rotation - (Math.PI / 2));
-    sprite.x = Math.max(0, Math.min(app.renderer.width, (sprite.x + dx))); 
-    sprite.y = Math.max(0, Math.min(app.renderer.height, (sprite.y + dy))); 
-    sprite.rotation = (sprite.rotation + sprite.vrot) % (2 * Math.PI);
+    let dx = tank.vfwd * Math.cos(tank.tank.rotation - (Math.PI / 2));
+    let dy = tank.vfwd * Math.sin(tank.tank.rotation - (Math.PI / 2));
+    tank.tank.x = Math.max(0, Math.min(app.renderer.width, (tank.tank.x + dx))); 
+    tank.tank.y = Math.max(0, Math.min(app.renderer.height, (tank.tank.y + dy))); 
+    tank.tbarrel.rotation = (tank.tbarrel.rotation + tank.vrot) % (2 * Math.PI);
 }
 
 app.renderer.backgroundColor = 0x66ccff;

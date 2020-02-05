@@ -45,7 +45,6 @@ export class QuadTree {
 
     subdivide(){
         
-        console.log('Dividing area: ' + this.boundary.toString());
         let nwRect = new Rectangle(
             this.boundary.x, 
             this.boundary.y, 
@@ -105,6 +104,20 @@ export class QuadTree {
 
     // TODO: Range query: https://medium.com/@waleoyediran/spatial-indexing-with-quadtrees-b998ae49336
     // TODO: Collision detection: http://www.jeffreythompson.org/collision-detection/circle-rect.php
+
+    highestY(x: number): number {
+        if(this.sprite != null 
+            && x >= this.boundary.x 
+            && x < (this.boundary.x + this.boundary.w)){
+                return this.boundary.y;
+        }
+        return Math.min(
+            this.nw.highestY(x), 
+            this.ne.highestY(x), 
+            this.sw.highestY(x),
+            this.se.highestY(x)
+        );
+    }
 
     initialize(cspline: CSpline, gcontain: PIXI.Container){
         if(!this.isHomogeneous(cspline)){
