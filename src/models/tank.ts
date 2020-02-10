@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js'
 import * as sprites from '../sprites'
+import { Terrain } from './terrain';
 
 export enum TankColor {
     Black,
@@ -46,12 +47,35 @@ export class Tank {
         this.tank.y = 50;
     }
 
-    handleMovement() {
-        this.tank.x += this.vx;
+    collidingBelow(terrain:Terrain): boolean {
+        let ispts = terrain.intersectRect(this.tank.x-8, this.tank.y+1, this.width(), this.height());
+        return ispts.length != 0;
+    }
+
+    handleMovement(terrain: Terrain) {
+        if(!this.collidingBelow(terrain)){
+            this.tank.y += 1;
+            return;
+        }
+        let nx = this.tank.x + this.vx;
+        let ipts = terrain.intersectRect(nx-8, this.tank.y, this.width(), this.height());
+        if(ipts.length != 0){
+            ipts = terrain.intersectRect(nx-8, this.tank.y-2, this.width(), this.height());
+            if(ipts.length == 0){
+                this.tank.x = nx;
+                this.tank.y -= 2;
+            }
+        }else{
+            this.tank.x = nx;
+        }
         this.tank.y += this.vy;
         let nrot = this.tbarrel.rotation + this.vrot;
         if(nrot <= Math.PI && nrot >= 0)
             this.tbarrel.rotation += this.vrot;
+    }
+
+    fireProjectile(){
+        console.log("Fire!");
     }
 
     setPosition(x:number, y:number) {
@@ -65,5 +89,28 @@ export class Tank {
 
     bodyHeight(): number{
         return this.tbody.height;
+    }
+
+    x(): number {
+        return this.tank.x;
+    }
+
+    y(): number {
+        return this.tank.y;
+    }
+
+    width(): number {
+        return this.tank.width;
+    }
+
+    height(): number {
+        return 17.2;
+    }
+
+    showBounds(){
+        let rect = new PIXI.Graphics();
+        rect.beginFill(0xFF0000);
+        rect.drawRect(this.tank.x, this.tank.y, this.width(), this.height());
+        this.tank.addChild(rect);
     }
 }

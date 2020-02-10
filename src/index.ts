@@ -14,68 +14,99 @@ const app = new PIXI.Application({
 loadAssets(setup);
 
 let tank:Tank;
+let terrain:Terrain;
+let graphics:PIXI.Graphics;
 
 function setup():void{
     
     tank = new Tank(TankColor.Red);
-    let terrain = new Terrain(app.renderer.width, app.renderer.height);
+    terrain = new Terrain(app.renderer.width, app.renderer.height);
     terrain.mountTank(tank, 100);
     app.stage.addChild(tank.tank);
     app.stage.addChild(terrain.tsprites);
+    graphics = new PIXI.Graphics();
+    graphics.beginFill(0xFF0000);
+    app.stage.addChild(graphics);
     app.ticker.add(delta => gameLoop(delta));
 
     let left:Key = keyboard("a"),
         right:Key = keyboard("d"),
+        brotLeft:Key = keyboard("ArrowLeft"),
+        brotRight:Key = keyboard("ArrowRight"),
+        powerUp:Key = keyboard("ArrowUp"),
+        powerDown:Key = keyboard("ArrowDown"),
+        fire:Key = keyboard(" "),
         up:Key = keyboard("w"),
         down:Key = keyboard("s");
 
-    // Left
-    left.press = () => {
+    brotLeft.press = () => {
         tank.vrot = -0.1;
-        tank.vfwd = 0;
     };
 
-    left.release = () => {
+    brotLeft.release = () => {
        if (!right.isDown && tank.vfwd === 0) {
             tank.vrot = 0;
        }
     };
-        
-    //Up
-    up.press = () => {
-        tank.vfwd = 5;
-        tank.vrot = 0;
-    };
-    
-    up.release = () => {
-        if (!down.isDown && tank.vrot === 0) {
-            tank.vfwd = 0;
-        }
-    };
-        
-    //Right
-    right.press = () => {
+
+    brotRight.press = () => {
         tank.vrot = 0.1;
-        tank.vfwd = 0;
     };
 
-    right.release = () => {
+    brotRight.release = () => {
         if (!left.isDown && tank.vfwd === 0) {
             tank.vrot = 0;
         }
     };
 
+    // Left
+    left.press = () => {
+        tank.vx = -1;
+    };
+
+    left.release = () => {
+       if (!right.isDown && tank.vfwd === 0) {
+            tank.vx = 0;
+       }
+    };
+        
+    //Up
+    up.press = () => {
+        tank.vy = -5;
+    };
+    
+    up.release = () => {
+        if (!down.isDown && tank.vrot === 0) {
+            tank.vy = 0;
+        }
+    };
+        
+    //Right
+    right.press = () => {
+        tank.vx = 1;
+    };
+
+    right.release = () => {
+        if (!left.isDown) {
+            tank.vx = 0;
+        }
+    };
+
     //Down
     down.press = () => {
-        tank.vfwd = -5;
-        tank.vrot = 0;
+        tank.vy = 5;
     };
     
     down.release = () => {
         if (!up.isDown && tank.vrot === 0) {
-            tank.vfwd = 0;
+            tank.vy = 0;
         }
     };
+
+    fire.press = () => {
+        tank.fireProjectile();
+    }
+
     console.log(tank);
 }
 
@@ -86,11 +117,12 @@ function gameLoop(delta:any):void{
 }
 
 function play(delta:any):void{
-    let dx = tank.vfwd * Math.cos(tank.tank.rotation - (Math.PI / 2));
-    let dy = tank.vfwd * Math.sin(tank.tank.rotation - (Math.PI / 2));
-    tank.tank.x = Math.max(0, Math.min(app.renderer.width, (tank.tank.x + dx))); 
-    tank.tank.y = Math.max(0, Math.min(app.renderer.height, (tank.tank.y + dy))); 
-    tank.tbarrel.rotation = (tank.tbarrel.rotation + tank.vrot) % (2 * Math.PI);
+    tank.handleMovement(terrain);
+    // graphics.clear();
+    // graphics.beginFill(0xff0000);
+    // graphics.drawRect(tank.tank.x-8, tank.tank.y, tank.width(), tank.height());
+    let spts = terrain.intersectTank(tank);
+    spts.forEach(spt => spt.alpha = 0.5);
 }
 
 app.renderer.backgroundColor = 0x66ccff;

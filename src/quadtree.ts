@@ -26,6 +26,28 @@ export class Rectangle {
     toString(): string{
         return "[" + this.x + ", " + this.y + ", " + this.w + ", " + this.h + "]";
     }
+
+    doesIntersectRect(other: Rectangle): boolean {
+        return (
+            this.x < (other.x + other.w) &&
+            (this.x + this.w) > other.x &&
+            this.y < (other.y + other.h) &&
+            (this.y + this.h) > other.y
+        );
+    }
+
+    doesIntersectCircle(x: number, y: number, r: number): boolean{
+        let testX = x;
+        let testY = y;
+        if (x < this.x) testX = this.x;
+        else if(x > (this.x + this.w)) testX = this.x + this.w;
+        if (y < this.y) testY = this.y;
+        else if(y > (this.y + this.h)) testY = this.y + this.h;
+        const distX = x - testX;
+        const distY = y - testY;
+        const distance = Math.sqrt((distX * distX) + (distY * distY));
+        return distance <= r;
+    }
 }
 
 export class QuadTree {
@@ -102,8 +124,44 @@ export class QuadTree {
         return bounds;
     }
 
-    // TODO: Range query: https://medium.com/@waleoyediran/spatial-indexing-with-quadtrees-b998ae49336
-    // TODO: Collision detection: http://www.jeffreythompson.org/collision-detection/circle-rect.php
+    getChildrenInRect(x:number, y:number, w:number, h:number, spriteOnly?: boolean): QuadTree[]{
+        let result: QuadTree[] = [];
+        const qrect = new Rectangle(x, y, w, h);
+        if(!this.boundary.doesIntersectRect(qrect)) return result;
+        if(this.isLeaf()){
+            if(spriteOnly !== undefined && spriteOnly){
+                if(this.sprite != null) {
+                    result.push(this);
+                }
+            }else{
+                result.push(this);
+            }
+            return result;
+        }
+        result = result.concat(this.nw.getChildrenInRect(x, y, w, h, spriteOnly));
+        result = result.concat(this.ne.getChildrenInRect(x, y, w, h, spriteOnly));
+        result = result.concat(this.sw.getChildrenInRect(x, y, w, h, spriteOnly));
+        result = result.concat(this.se.getChildrenInRect(x, y, w, h, spriteOnly));
+        return result;
+    }
+
+    getChildrenInRadius(x:number, y:number, r:number, spriteOnly?: boolean): QuadTree[]{
+        let result: QuadTree[] = [];
+        if(!this.boundary.doesIntersectCircle(x, y, r)) return result;
+        if(this.isLeaf()){
+            if(spriteOnly != undefined && spriteOnly){
+                if(this.sprite != null) result.push(this);
+            }else{
+                result.push(this);
+            }
+            return result;
+        }
+        result = result.concat(this.nw.getChildrenInRadius(x, y, r, spriteOnly));
+        result = result.concat(this.ne.getChildrenInRadius(x, y, r, spriteOnly));
+        result = result.concat(this.sw.getChildrenInRadius(x, y, r, spriteOnly));
+        result = result.concat(this.se.getChildrenInRadius(x, y, r, spriteOnly));
+        return result;
+    }
 
     highestY(x: number): number {
         if(this.sprite != null 
@@ -132,10 +190,9 @@ export class QuadTree {
             this.boundary.matchBounds(this.sprite);
             gcontain.addChild(this.sprite);
         }
-        //gcontain.addChild(this.drawBounds());
     }
 
     isLeaf(): boolean {
-        return this.nw === null;
+        return this.nw === undefined;
     }
 }
