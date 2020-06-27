@@ -3,6 +3,12 @@ import { CSpline } from './cspline'
 import { grass } from './sprites'
 
 
+function dist(x0:number, y0:number, x1:number, y1:number):number {
+    const distX = x1 - x0;
+    const distY = y1 - y0;
+    return Math.sqrt((distX * distX) + (distY * distY));
+}
+
 export class Rectangle {
     x: number;
     y: number;
@@ -97,7 +103,7 @@ export class QuadTree {
         this.se = new QuadTree(seRect);
     }
 
-    isHomogeneous(cspline: CSpline): boolean {
+    isHomogeneous(cspline:CSpline):boolean {
         if(this.boundary.w === QuadTree.MIN_WIDTH || this.boundary.h === QuadTree.MIN_HEIGHT){
             return true;
         }
@@ -110,7 +116,19 @@ export class QuadTree {
         return true;
     }
 
-    drawBounds(): PIXI.Graphics {
+    isHomogeneousInCircle(x:number, y:number, radius:number):boolean {
+        if (this.boundary.w === QuadTree.MIN_WIDTH || this.boundary.h === QuadTree.MIN_HEIGHT){
+            return true;
+        }
+        if (dist(x, y, this.boundary.x, this.boundary.y) > radius
+            || dist(x, y, this.boundary.x + this.boundary.w, this.boundary.y) > radius
+            || dist(x, y, this.boundary.x + this.boundary.w, this.boundary.y + this.boundary.h) > radius
+            || dist(x, y, this.boundary.x, this.boundary.y + this.boundary.h) > radius)
+            return false;
+        return true;
+    }
+
+    drawBounds():PIXI.Graphics {
         const bounds = new PIXI.Graphics();
         bounds.lineStyle(1, 0xFF0000, 1);
         bounds.moveTo(this.boundary.x, this.boundary.y);
@@ -124,7 +142,7 @@ export class QuadTree {
         return bounds;
     }
 
-    getChildrenInRect(x:number, y:number, w:number, h:number, spriteOnly?: boolean): QuadTree[]{
+    getChildrenInRect(x:number, y:number, w:number, h:number, spriteOnly?:boolean):QuadTree[] {
         let result: QuadTree[] = [];
         const qrect = new Rectangle(x, y, w, h);
         if(!this.boundary.doesIntersectRect(qrect)) return result;
@@ -145,7 +163,7 @@ export class QuadTree {
         return result;
     }
 
-    getChildrenInRadius(x:number, y:number, r:number, spriteOnly?: boolean): QuadTree[]{
+    getChildrenInRadius(x:number, y:number, r:number, spriteOnly?:boolean):QuadTree[] {
         let result: QuadTree[] = [];
         if(!this.boundary.doesIntersectCircle(x, y, r)) return result;
         if(this.isLeaf()){
@@ -163,7 +181,7 @@ export class QuadTree {
         return result;
     }
 
-    highestY(x: number): number {
+    highestY(x:number):number {
         if(this.sprite != null 
             && x >= this.boundary.x 
             && x < (this.boundary.x + this.boundary.w)){
@@ -177,7 +195,7 @@ export class QuadTree {
         );
     }
 
-    initialize(cspline: CSpline, gcontain: PIXI.Container){
+    initialize(cspline:CSpline, gcontain:PIXI.Container) {
         if(!this.isHomogeneous(cspline)){
             this.subdivide();
             this.nw.initialize(cspline, gcontain);
@@ -186,6 +204,21 @@ export class QuadTree {
             this.se.initialize(cspline, gcontain);
         }
         if(this.isHomogeneous(cspline) && this.boundary.y >= cspline.yval(this.boundary.x)){
+            this.sprite = grass();
+            this.boundary.matchBounds(this.sprite);
+            gcontain.addChild(this.sprite);
+        }
+    }
+
+    decomposeAboutCircle(x:number, y:number, radius:number, gcontain:PIXI.Container) {
+        if (this.isLeaf() && !this.isHomogeneousInCircle(x, y, radius)) {
+            this.subdivide();
+            this.nw.decomposeAboutCircle(x, y, radius, gcontain);
+            this.ne.decomposeAboutCircle(x, y, radius, gcontain);
+            this.sw.decomposeAboutCircle(x, y, radius, gcontain);
+            this.se.decomposeAboutCircle(x, y, radius, gcontain);
+        }
+        if (this.isLeaf() && !this.boundary.doesIntersectCircle(x, y, radius)) {
             this.sprite = grass();
             this.boundary.matchBounds(this.sprite);
             gcontain.addChild(this.sprite);

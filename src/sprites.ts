@@ -68,3 +68,8 @@ export function grass(): PIXI.Sprite {
     let g = new PIXI.Sprite(sprites['grass.png']);
     return g;
 }
+
+export function projectile(): PIXI.Sprite {
+    const sprites = loader.resources["img/spritesheet.json"].textures;
+    return new PIXI.Sprite(sprites['projectile.png']);
+}

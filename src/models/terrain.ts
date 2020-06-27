@@ -20,12 +20,14 @@ export class Terrain {
     qtree: QuadTree;
     tsprites: PIXI.Container;
     cspline: CSpline;
+    width: number;
 
     constructor(gwidth: number, gheight: number) {
         this.qtree = new QuadTree(new Rectangle(0, 0, gwidth, gheight));
         this.tsprites = new PIXI.Container();
         this.cspline = new CSpline(knotPoints(gwidth, gheight, 10, 0.3));
         this.qtree.initialize(this.cspline, this.tsprites);
+        this.width = gwidth;
     }
 
     /**
@@ -57,5 +59,14 @@ export class Terrain {
     intersectProjectile(p: Projectile): PIXI.Sprite[]{
         let tblocks = this.qtree.getChildrenInRadius(p.x(), p.y(), p.radius, true);
         return tblocks.map((tb) => tb.sprite);
+    }
+
+    handleExplosion(x:number, y:number, radius:number) {
+        let tblocks = this.qtree.getChildrenInRadius(x, y, radius, true);
+        tblocks.forEach((tb) => {
+            tb.sprite.destroy();
+            tb.sprite = null;
+            tb.decomposeAboutCircle(x, y, radius, this.tsprites);
+        });
     }
 }

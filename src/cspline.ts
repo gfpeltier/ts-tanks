@@ -50,7 +50,7 @@ export class CSpline {
     private vecZ(matA: number[][], vv: number[]): number[]{
         let vz:number[] = [];
         const mmat = math.matrix(matA);
-        let vec = <number[]> math.multiply(math.inv(mmat), vv);
+        let vec = <math.Matrix> math.multiply(math.inv(mmat), vv);
         vec.forEach((e) => {vz.push(e)});
         return vz;
     }
